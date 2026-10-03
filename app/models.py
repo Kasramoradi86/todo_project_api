@@ -8,7 +8,7 @@ class TodoList(Base):
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[String] = mapped_column(String(100))
 
-    todos: Mapped[list["Todo"]] = relationship(back_populates="todo_lists")
+    todos: Mapped[list["Todo"]] = relationship(back_populates="todo_list")
 
 class Todo(Base):
     __tablename__ = "todos"
