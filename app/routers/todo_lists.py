@@ -4,6 +4,7 @@ from sqlalchemy import select
 
 from .. import models,schemas
 from ..database import get_db
+from ..exception import TodoListNotFound
 
 router = APIRouter(prefix="/todo_lists",tags=["Todo Lists"])
 
@@ -27,24 +28,23 @@ def get_all_todo_lists(db:Session = Depends(get_db)):
 def get_todo_list_by_id(id:int,db:Session = Depends(get_db)):
     result = db.execute(select(models.TodoList).where(models.TodoList.id == id))
     todo_list = result.scalar_one_or_none()
+    if todo_list is None:
+        raise TodoListNotFound(id)
     return todo_list
 
 @router.put("/{id}",response_model=schemas.TodoListResponse)
 def update_todo_list(id:int, todo_list:schemas.TodoListUpdate, db:Session = Depends(get_db)):
     existing_list = get_todo_list_by_id(id=id, db=db)
-    if existing_list is not None:
-        existing_list.name = todo_list.name
-        db.commit()
-        db.refresh(existing_list)
-        return existing_list
-    return None
+    existing_list.name = todo_list.name
+    db.commit()
+    db.refresh(existing_list)
+    return existing_list
 
 @router.delete("/{id}")
 def delete_todo_list(id:int, db:Session = Depends(get_db)):
     exising_list = get_todo_list_by_id(id=id, db=db)
-    if exising_list is not None:
-        db.delete(exising_list)
-        db.commit()
-        return {"massage":f"Todo List (id={id}) deleted"}
-    return None
+    db.delete(exising_list)
+    db.commit()
+    return {"massage":f"Todo List (id={id}) deleted"}
+
 
