@@ -13,10 +13,10 @@ class TodoList(Base):
 class Todo(Base):
     __tablename__ = "todos"
 
-    id = Mapped[int] = mapped_column(primary_key=True)
-    title = Mapped[str] = mapped_column[String(200)]
-    description = Mapped[str | None] = mapped_column(String(500),nullable=True)
-    completed = Mapped[bool] = mapped_column(Boolean,default=False)
+    id: Mapped[int] = mapped_column(primary_key=True)
+    title: Mapped[str] = mapped_column(String(200))
+    description: Mapped[str | None] = mapped_column(String(500),nullable=True)
+    completed: Mapped[bool] = mapped_column(Boolean,default=False)
 
-    list_id = Mapped[int] = mapped_column(ForeignKey("todo_lists.id"))
+    list_id: Mapped[int] = mapped_column(ForeignKey("todo_lists.id"))
     todo_list: Mapped["TodoList"] = relationship(back_populates="todos")
