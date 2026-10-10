@@ -1,49 +1,42 @@
 from fastapi import APIRouter,Depends
 from sqlalchemy.orm import Session
-from sqlalchemy import select
-
+from .. import schemas
 from ..database import get_db
-from .. import schemas,models
+from .. import crud
 from ..exception import TodoNotFound
-from .todo_lists import get_todo_list_by_id
 
-router = APIRouter(prefix="/todos",tags=["Todos"])
+router = APIRouter(prefix="/todo",tags=["Todos"])
 
 @router.post("/",response_model=schemas.TodoResponse)
-def create_list(todo:schemas.TodoCreate,list_id:int, db:Session = Depends(get_db)):
-    existing_list = get_todo_list_by_id(id=list_id, db=db)
-    if existing_list is None:
-        return None
-    new_todo = models.Todo(title=todo.title, description=todo.description, completed=todo.completed, list_id=list_id)
-    db.add(new_todo)
-    db.commit()
-    db.refresh(new_todo)
-    return new_todo
+def create_todo(todo:schemas.TodoCreate,db:Session = Depends(get_db)):
+    return crud.create_todo(title=todo.title, description=todo.description, completed=todo.completed, db=db)
 
 @router.get("/",response_model=list[schemas.TodoResponse])
 def get_all_todos(db:Session = Depends(get_db)):
-    result = db.execute(select(models.Todo))
-    todos = result.scalars().all()
-    return todos
+    return crud.get_all_todos(db=db)
 
 @router.get("/{id}",response_model=schemas.TodoResponse)
 def get_todo_by_id(id:int, db:Session = Depends(get_db)):
-    existing_list = db.execute(select(models.Todo).where(models.Todo.id == id)).scalar_one_or_none()
-    if existing_list is None:
+    result = crud.get_todo_by_id(id=id, db=db)
+    if result is None:
         raise TodoNotFound(id)
-    return existing_list
+    return result
 
-@router.put("/{id}",response_model=schemas.TodoResponse)
-def update_todo(id:int, todo:schemas.TodoUpdata, db:Session = Depends(get_db)):
-    existing_todo = get_todo_by_id(id=id, db=db)
-    if todo.title is not None:
-        existing_todo.title = todo.title
-    if todo.description is not None:
-        existing_todo.description = todo.description
-    if todo.completed is not None:
-        existing_todo.completed = todo.completed
+@router.put("/",response_model=schemas.TodoResponse)
+def update_todo(new_todo:schemas.TodoUpdata, db:Session = Depends(get_db)):
+    result = crud.update_todo(title=new_todo.title,description=new_todo.description,completed=new_todo.completed,db=db)
+    if result is None:
+        raise TodoNotFound(id)
+    return result
 
-    db.commit()
-    db.refresh(existing_todo)
-    return existing_todo
+@router.delete("/")
+def delete_todo(id:int, db:Session = Depends(get_db)):
+    result = crud.delete_todo(id=id, db=db)
+    if not result:
+        raise TodoNotFound(id)
+    return True
+
+
+
+
 
