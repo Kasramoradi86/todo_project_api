@@ -15,8 +15,9 @@ class Todo(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     title: Mapped[str] = mapped_column(String(200))
-    description: Mapped[str | None] = mapped_column(String(500),nullable=True)
     completed: Mapped[bool] = mapped_column(Boolean,default=False)
+    is_urgent: Mapped[bool] = mapped_column(Boolean,nullable=True,default=False)
+    description: Mapped[str] = mapped_column(String,nullable=True)
 
     list_id: Mapped[int] = mapped_column(ForeignKey("todo_lists.id"))
     todo_list: Mapped["TodoList"] = relationship(back_populates="todos")
