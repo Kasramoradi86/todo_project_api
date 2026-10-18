@@ -1,11 +1,13 @@
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from .. import models
+from .todo_list import get_todo_list_by_id
 
-
-
-def create_todo(title:str, description:str, completed:bool, db:Session):
-    todo = models.Todo(title=title, description=description, completed=completed)
+def create_todo(title:str, description:str, completed:bool,todo_list_id:int, db:Session):
+    todo_list = get_todo_list_by_id(id=todo_list_id, db=db)
+    if todo_list is None:
+        return None
+    todo = models.Todo(title=title, description=description, completed=completed, list_id=todo_list_id)
     db.add(todo)
     db.commit()
     db.refresh(todo)
@@ -13,7 +15,7 @@ def create_todo(title:str, description:str, completed:bool, db:Session):
 
 def get_all_todos(db:Session):
     result = db.execute(select(models.Todo))
-    return result.scalar().all()
+    return result.scalars().all()
 
 def get_todo_by_id(id:int, db:Session):
     return db.get(models.Todo,id)

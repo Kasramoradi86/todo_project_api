@@ -3,13 +3,16 @@ from sqlalchemy.orm import Session
 from .. import schemas
 from ..database import get_db
 from .. import crud
-from ..exception import TodoNotFound
+from ..exception import TodoNotFound,TodoListNotFound
 
 router = APIRouter(prefix="/todo",tags=["Todos"])
 
 @router.post("/",response_model=schemas.TodoResponse)
 def create_todo(todo:schemas.TodoCreate,db:Session = Depends(get_db)):
-    return crud.create_todo(title=todo.title, description=todo.description, completed=todo.completed, db=db)
+    result = crud.create_todo(title=todo.title, description=todo.description, completed=todo.completed,todo_list_id=todo.list_id, db=db)
+    if result is None:
+        raise TodoListNotFound(todo.todo_list_id)
+    return result
 
 @router.get("/",response_model=list[schemas.TodoResponse])
 def get_all_todos(db:Session = Depends(get_db)):

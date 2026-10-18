@@ -18,6 +18,7 @@ class TodoCreate(BaseModel):
     title: str
     description: str | None = None
     completed: bool = False
+    list_id: int
 
 class TodoResponse(BaseModel):
     id: int
@@ -34,3 +35,6 @@ class TodoUpdata(BaseModel):
     title: str | None = None
     description: str | None = None
     completed: bool | None = None
+
+class TodoListResponseWithTodos(TodoListResponse):
+    todos: list["TodoResponse"] = []

@@ -19,13 +19,13 @@ def create_todo_list(
 def get_all_todo_lists(db:Session = Depends(get_db)):
     return crud.get_all_todo_lists(db=db)
 
+
 @router.get("/{id}",response_model=schemas.TodoListResponse)
 def get_todo_list_by_id(id:int,db:Session = Depends(get_db)):
     result = crud.get_todo_list_by_id(id=id, db=db)
     if result is None:
         raise TodoListNotFound(id)
     return result
-    
 
 @router.put("/{id}",response_model=schemas.TodoListResponse)
 def update_todo_list(id:int, new_todo_list:schemas.TodoListUpdate, db:Session = Depends(get_db)):
@@ -40,5 +40,12 @@ def delete_todo_list(id:int, db:Session = Depends(get_db)):
     if not result:
         raise TodoListNotFound(id)
     return result
+
+
+@router.get("/{id}/todos",response_model=list[schemas.TodoResponse])
+def get_todo_list_with_todos(id:int, db:Session = Depends(get_db)):
+    return crud.get_todo_list_with_todos(list_id=id, db=db)
+
+
 
        
