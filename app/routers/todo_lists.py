@@ -49,6 +49,11 @@ def get_todo_list_with_todos(id:int, db:Session = Depends(get_db)):
         raise TodoListNotFound(id)
     return result
 
-
+@router.get("{id}/stats")
+def get_todo_list_stat(list_id:int, db:Session = Depends(get_db)):
+    result = crud.get_todo_list_stat(list_id=list_id,db=db)
+    if result is None:
+        raise TodoListNotFound(list_id)
+    return result
 
        

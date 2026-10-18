@@ -24,7 +24,18 @@ def get_todo_list_with_todos(list_id:int, db:Session):
         return None
     return existing_list.todos
 
+def get_todo_list_stat(list_id:int, db=Session):
+    todos = get_todo_list_with_todos(list_id=list_id, db=db)
+    if todos is None:
+        return None
+    all_counter = len(todos)
+    completed_counter = sum(todo.completed for todo in todos)
+    uncompleted_counter = all_counter - completed_counter
+    return {"all":all_counter,"completed":completed_counter,"uncompleted":uncompleted_counter}
+
+
 def update_todo_list(id:int, new_name:str, db:Session):
+
     result = db.get(models.TodoList,id)
     if result is None:
         return None
