@@ -25,7 +25,7 @@ def get_todo_list_with_todos(list_id:int, db:Session):
     return existing_list.todos
 
 def update_todo_list(id:int, new_name:str, db:Session):
-    result = db.get(models.Todo,id)
+    result = db.get(models.TodoList,id)
     if result is None:
         return None
     result.name = new_name

@@ -39,4 +39,5 @@ def delete_todo(id:int, db:Session):
     if result is None:
         return False
     db.delete(result)
+    db.commit()
     return True

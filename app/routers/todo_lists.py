@@ -2,7 +2,7 @@ from fastapi import APIRouter,Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from .. import models,schemas
+from .. import schemas
 from ..database import get_db
 from ..exception import TodoListNotFound
 from .. import crud
@@ -44,7 +44,10 @@ def delete_todo_list(id:int, db:Session = Depends(get_db)):
 
 @router.get("/{id}/todos",response_model=list[schemas.TodoResponse])
 def get_todo_list_with_todos(id:int, db:Session = Depends(get_db)):
-    return crud.get_todo_list_with_todos(list_id=id, db=db)
+    result = crud.get_todo_list_with_todos(list_id=id, db=db)
+    if result is None:
+        raise TodoListNotFound(id)
+    return result
 
 
 
